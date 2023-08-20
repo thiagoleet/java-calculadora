@@ -1,5 +1,7 @@
 package me.thiagoleite.calc.visao;
 
+import me.thiagoleite.calc.modelo.Memoria;
+
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import java.awt.Color;
@@ -14,7 +16,7 @@ public class Display extends JPanel {
         setBackground(new Color(46, 49, 50));
         setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 25));
 
-        label = new JLabel("123456,78");
+        label = new JLabel(Memoria.getInstancia().getTextoAtual());
         label.setForeground(Color.WHITE);
         label.setFont(new Font("courier", Font.PLAIN, 30));
         add(label);
