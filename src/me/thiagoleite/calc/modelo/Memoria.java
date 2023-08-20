@@ -10,7 +10,11 @@ public class Memoria {
     }
 
     private static Memoria instancia = new Memoria(); // Singleton
+
+    private TipoComando ultimaOperacao = null;
+    private boolean substituir = false;
     private String textoAtual = "";
+    private String textoBuffer = "";
     private final List<MemoriaObserver> observers = new ArrayList<>();
 
     private Memoria() {
@@ -31,16 +35,30 @@ public class Memoria {
 
     void limparTextoAtual() {
         textoAtual = "";
+        textoBuffer = "";
+        substituir = false;
+        ultimaOperacao = null;
     }
 
-    void concatenarValor(String valor) {
-        textoAtual += valor;
+    void alteraTextoAtual(String valor) {
+        textoAtual = substituir ? valor : textoAtual + valor;
+        substituir = false;
     }
 
     public void processarComando(String texto) {
         TipoComando tipoComando = detectarTipoComando(texto);
-        System.out.println(tipoComando);
 
+        if (tipoComando == null) {
+            return;
+        } else if (tipoComando == TipoComando.ZERAR) {
+            limparTextoAtual();
+        } else if (tipoComando == TipoComando.NUMERO || tipoComando == TipoComando.VIRGULA) {
+            alteraTextoAtual(texto);
+        } else {
+            // TODO: operações com o buffer;
+        }
+
+        // notifica os observadores
         observers.forEach(o -> o.valorAlterado(getTextoAtual()));
     }
 
@@ -63,7 +81,7 @@ public class Memoria {
                 return TipoComando.SOMA;
             } else if ("-".equals(texto)) {
                 return TipoComando.SUB;
-            } else if (",".equals(texto)) {
+            } else if (",".equals(texto) && !getTextoAtual().contains(",")) {
                 return TipoComando.VIRGULA;
             } else if ("=".equals(texto)) {
                 return TipoComando.IGUAL;
