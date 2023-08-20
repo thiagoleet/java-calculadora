@@ -1,5 +1,7 @@
 package me.thiagoleite.calc.visao;
 
+import me.thiagoleite.calc.modelo.Memoria;
+
 import javax.swing.*;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -74,7 +76,7 @@ public class Teclado extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() instanceof JButton) {
             JButton botao = (JButton) e.getSource();
-            System.out.println(botao.getText());
+            Memoria.getInstancia().processarComando(botao.getText());
         }
 
     }
