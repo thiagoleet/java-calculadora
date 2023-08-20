@@ -33,16 +33,48 @@ public class Memoria {
         return textoAtual.isEmpty() ? "0" : textoAtual;
     }
 
-    void limparTextoAtual() {
+    private void limparTextoAtual() {
         textoAtual = "";
         textoBuffer = "";
         substituir = false;
         ultimaOperacao = null;
     }
 
-    void alteraTextoAtual(String valor) {
+    private void alteraTextoAtual(String valor) {
         textoAtual = substituir ? valor : textoAtual + valor;
         substituir = false;
+    }
+
+    private String obterResultadoOperacao() {
+        if (ultimaOperacao == null) {
+            return textoAtual;
+        }
+
+        double numeroBuffer = Double.parseDouble(textoBuffer.replace(",", "."));
+        double numeroAtual = Double.parseDouble(textoAtual.replace(",", "."));
+        double resultado = 0;
+
+        if (ultimaOperacao == TipoComando.SOMA) {
+            resultado = numeroBuffer + numeroAtual;
+        } else if (ultimaOperacao == TipoComando.SUB) {
+            resultado = numeroBuffer - numeroAtual;
+        } else if (ultimaOperacao == TipoComando.MULT) {
+            resultado = numeroBuffer * numeroAtual;
+        } else if (ultimaOperacao == TipoComando.DIV) {
+            resultado = numeroBuffer / numeroAtual;
+        }
+
+        String resultadoTexto = Double.toString(resultado).replace(".", ",");
+        boolean isInteiro = resultadoTexto.endsWith(",0");
+
+        return isInteiro ? resultadoTexto.replace(",0", "") : resultadoTexto;
+    }
+
+    private void prepararOperacao(String texto, TipoComando tipoComando) {
+        substituir = true;
+        textoAtual = obterResultadoOperacao();
+        textoBuffer = textoAtual;
+        ultimaOperacao = tipoComando;
     }
 
     public void processarComando(String texto) {
@@ -55,12 +87,13 @@ public class Memoria {
         } else if (tipoComando == TipoComando.NUMERO || tipoComando == TipoComando.VIRGULA) {
             alteraTextoAtual(texto);
         } else {
-            // TODO: operações com o buffer;
+            prepararOperacao(texto, tipoComando);
         }
 
         // notifica os observadores
         observers.forEach(o -> o.valorAlterado(getTextoAtual()));
     }
+
 
     private TipoComando detectarTipoComando(String texto) {
         if (getTextoAtual().isEmpty() && texto.equals("")) {
